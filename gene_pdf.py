@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: UTF-8 -*-
-
+import random
 import subprocess
 import datetime
 from reportlab.pdfgen import canvas
@@ -14,6 +14,11 @@ from reportlab.platypus import BaseDocTemplate, Frame, PageTemplate, Paragraph, 
 
 from reportlab.pdfbase.ttfonts import TTFont
 pdfmetrics.registerFont(TTFont('Calibri', './ttf/Calibri_Light.ttf'))
+pdfmetrics.registerFont(TTFont('Arial', './ttf/Arial.ttf'))
+pdfmetrics.registerFont(TTFont('Tahoma', './ttf/tahoma.ttf'))
+
+row_gap = 0.5
+col_gap = 1.55
 
 def disk_report():                # 查看磁盘空间使用量
     p=subprocess.Popen("df -h", shell=True, stdout=subprocess.PIPE)
@@ -85,20 +90,49 @@ def header(canvas, doc):
 # doc.build(text)
 
 # d = Drawing(400, 200)
-c = canvas.Canvas("template.pdf")
-# for size in range(12, 36, 4):
-#     c.drawString(10+size*2, 10+size*2, 'Hello World')
+
 file_name = "origin_eng.txt"
 words = []
 count = 1
-with open(file_name, 'r') as f:
+# with open(file_name, 'r') as f:
+#     for line in f:
+#         if count % 3 is 2:
+#             # print line
+#             words.append(line)
+#         count = count + 1
+# f.close()
+eng_all_file = "eng_all.txt"
+with open(eng_all_file, 'r') as f:
     for line in f:
-        if count % 3 is 2:
-            # print line
-            words.append(line)
+        line = line.strip('\n')
+        words.append(line)
+f.close()
+while '' in words:
+    words.remove('')
+
+random.shuffle(words)
+
+count = 1
+tmp = ""
+row = 1
+out_lable = 'label.txt'
+with open(out_lable, 'w') as f:
+    for word in words:
+        word = word.strip('\n')
+        tmp = tmp + word.ljust(18)
+        if count % 100 is 1:
+            f.write("@" + str((count / 100 + 1)).zfill(3) + '\n')
+        if count % 5 is 0:
+            print tmp + '\n'
+            f.write(tmp + '\n')
+            row = row + 1
+            tmp = ""
         count = count + 1
 f.close()
 
+
+out_pdf = "eng_word_Calibri.pdf"
+c = canvas.Canvas(out_pdf)
 textobject = c.beginText()
 # textobject.setTextOrigin(inch, 11 * inch)
 textobject.setFont('Calibri', size=10)
@@ -110,13 +144,13 @@ while count < len(words):
     textobject = c.beginText()
     # textobject.setTextOrigin(inch, 11 * inch)
     str_page = str(page)
-    textobject.setTextOrigin(0.25 * inch, 11.5 * inch)
-    textobject.textLines("Date: 20181115 Task: 53001 Page: " + str_page.zfill(3))
+    textobject.setTextOrigin(0.25 * inch, 11.25 * inch)
+    textobject.textLines("Date: 20181115 Task: 53002 Page: " + str_page.zfill(3))
     textobject.setFont('Calibri', size=14)
     for i in range(20):
-        for j in range(6):
+        for j in range(5):
             if count < len(words):
-                textobject.setTextOrigin(inch * (0.4 + j * 1.3), (10.5 - 0.5 * i) * inch)
+                textobject.setTextOrigin(inch * (0.4 + j * col_gap), (10.5 - row_gap * i) * inch)
                 textobject.textLines(words[count].strip())
                 count = count + 1
 
@@ -124,14 +158,95 @@ while count < len(words):
     c.drawText(textobject)
     c.showPage()
 
-# count = 84
-# for i in range(14):
-#     for j in range(6):
-#         textobject.setTextOrigin(inch * (0.5 + j * 1.3), (10 - 0.7 * i) * inch)
-#         textobject.textLines(words[count].strip())
-#         count = count + 1
-#
-# c.drawText(textobject)
-# c.showPage()
+c.save()
+
+
+out_pdf = "eng_word_Arial.pdf"
+c = canvas.Canvas(out_pdf)
+textobject = c.beginText()
+# textobject.setTextOrigin(inch, 11 * inch)
+textobject.setFont('Arial', size=10)
+
+
+count = 0
+page = 1
+while count < len(words):
+    textobject = c.beginText()
+    # textobject.setTextOrigin(inch, 11 * inch)
+    str_page = str(page)
+    textobject.setTextOrigin(0.25 * inch, 11.25 * inch)
+    textobject.textLines("Date: 20181115 Task: 53001 Page: " + str_page.zfill(3))
+    textobject.setFont('Arial', size=14)
+    for i in range(20):
+        for j in range(5):
+            if count < len(words):
+                textobject.setTextOrigin(inch * (0.4 + j * col_gap), (10.5 - row_gap * i) * inch)
+                textobject.textLines(words[count].strip())
+                count = count + 1
+
+    page = page + 1
+    c.drawText(textobject)
+    c.showPage()
+
+c.save()
+
+
+
+out_pdf = "eng_word_Tahoma.pdf"
+c = canvas.Canvas(out_pdf)
+textobject = c.beginText()
+# textobject.setTextOrigin(inch, 11 * inch)
+textobject.setFont('Tahoma', size=10)
+
+
+count = 0
+page = 1
+while count < len(words):
+    textobject = c.beginText()
+    # textobject.setTextOrigin(inch, 11 * inch)
+    str_page = str(page)
+    textobject.setTextOrigin(0.25 * inch, 11.25 * inch)
+    textobject.textLines("Date: 20181115 Task: 53003 Page: " + str_page.zfill(3))
+    textobject.setFont('Tahoma', size=14)
+    for i in range(20):
+        for j in range(5):
+            if count < len(words):
+                textobject.setTextOrigin(inch * (0.4 + j * col_gap), (10.5 - row_gap * i) * inch)
+                textobject.textLines(words[count].strip())
+                count = count + 1
+
+    page = page + 1
+    c.drawText(textobject)
+    c.showPage()
+
+c.save()
+
+out_pdf = "eng_word_Times_Roman.pdf"
+c = canvas.Canvas(out_pdf)
+textobject = c.beginText()
+# textobject.setTextOrigin(inch, 11 * inch)
+textobject.setFont('Times-Roman', size=10)
+
+
+count = 0
+page = 1
+while count < len(words):
+    textobject = c.beginText()
+    # textobject.setTextOrigin(inch, 11 * inch)
+    str_page = str(page)
+    textobject.setTextOrigin(0.25 * inch, 11.25 * inch)
+    textobject.textLines("Date: 20181115 Task: 53004 Page: " + str_page.zfill(3))
+    textobject.setFont('Times-Roman', size=14)
+    for i in range(20):
+        for j in range(5):
+            if count < len(words):
+                textobject.setTextOrigin(inch * (0.4 + j * col_gap), (10.5 - row_gap * i) * inch)
+                textobject.textLines(words[count].strip())
+                count = count + 1
+
+    page = page + 1
+    c.drawText(textobject)
+    c.showPage()
+
 c.save()
 print "finished"
